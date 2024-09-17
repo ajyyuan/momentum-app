@@ -12,7 +12,8 @@ const app = express()
 // use cors
 allowedOrigins = [
   "http://localhost:3000",
-  "https://momentum-frontend-x6n5.onrender.com"
+  "https://momentum-frontend-x6n5.onrender.com",
+  "https://joinmomentum.club"
 ]
 
 app.use(cors({
