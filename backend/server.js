@@ -4,11 +4,22 @@ const express = require('express')
 const mongoose = require('mongoose')
 const workoutRoutes = require('./routes/workouts')
 const userRoutes = require('./routes/user')
+const cors = require('cors')
 
 // express app
 const app = express()
 
-// middleware
+// use cors
+app.use(cors({
+  origin: allowedOrigins,
+  methods: 'GET,PATCH,POST,DELETE,OPTIONS',
+  optionsSuccessStatus: 200,
+  credentials: true
+}))
+
+app.options('*', cors()); // Pre-flight request
+
+// other middleware
 app.use(express.json())
 
 app.use((req, res, next) => {
