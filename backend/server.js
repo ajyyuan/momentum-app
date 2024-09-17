@@ -10,6 +10,11 @@ const cors = require('cors')
 const app = express()
 
 // use cors
+allowedOrigins = [
+  "http://localhost:3000",
+  "https://momentum-frontend-x6n5.onrender.com"
+]
+
 app.use(cors({
   origin: allowedOrigins,
   methods: 'GET,PATCH,POST,DELETE,OPTIONS',
