@@ -93,6 +93,9 @@ form button {
   border-radius: 4px;
   cursor: pointer;
 }
+form .warning strong {
+  color: var(--error);
+}
 div.error {
   padding: 10px;
   background: #ffefef;

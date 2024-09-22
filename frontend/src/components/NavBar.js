@@ -15,8 +15,6 @@ const NavBar = () => {
     return (
         <header>
             <div className="container">
-                {/* TODO: allow guest session (if you refresh the page, your saved workouts will be gone! Click here to make an account)
-                */}
                 <MomentumLogo />
                 <nav>
                     {user && (

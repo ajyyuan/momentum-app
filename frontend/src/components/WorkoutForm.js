@@ -105,6 +105,14 @@ const WorkoutForm = () => {
 
             <button>Add Workout</button>
             {error && <div className="error">{error}</div>}
+
+            {!user && (
+                <div className='warning'>
+                    <p>
+                        <strong>Warning:</strong> Your workouts will be lost upon reload. <a href="/login">Log in</a> or <a href="/signup">sign up</a> to save your workouts.
+                    </p>
+                </div>
+            )}
         </form>
     )
 }
