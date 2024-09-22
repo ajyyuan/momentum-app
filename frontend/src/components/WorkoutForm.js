@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useWorkoutsContext } from '../hooks/useWorkoutsContext'
 import { useAuthContext } from '../hooks/useAuthContext'
+import { v4 as uuidv4 } from 'uuid'
 
 const WorkoutForm = () => {
     const { dispatch } = useWorkoutsContext()
@@ -14,35 +15,63 @@ const WorkoutForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault()
-
-        if (!user) {
-            setError('You must be logged in')
-            return
+        
+        const workout = {
+            id: uuidv4(),
+            title,
+            load,
+            reps,
+            createdAt: new Date().toISOString()
         }
 
-        const workout = {title, load, reps}
+        if (!user) {
+            // Handle guest workout creation by adding it to sessionStorage
+            const emptyFields = []
+            if (!title) emptyFields.push('title')
+            if (!load) emptyFields.push('load')
+            if (!reps) emptyFields.push('reps')
 
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/workouts`, {
-            method: 'POST',
-            body: JSON.stringify(workout),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${user.token}`
+            if (emptyFields.length > 0) {
+                setError('Please fill in all the fields')
+                setEmptyFields(emptyFields)
+            } else {
+                let guestWorkouts = JSON.parse(sessionStorage.getItem('guestWorkouts')) || []
+                guestWorkouts.push(workout)
+                sessionStorage.setItem('guestWorkouts', JSON.stringify(guestWorkouts))
+    
+                // Update the context
+                dispatch({ type: 'CREATE_WORKOUT', payload: workout })
+                setTitle('')
+                setLoad('')
+                setReps('')
+                setError(null)
+                setEmptyFields([])
             }
-        })
-        const json = await response.json()
-
-        if (response.ok) {
-            setTitle('')
-            setLoad('')
-            setReps('')
-            setError(null)
-            setEmptyFields([])
-            console.log('new workout added', json)
-            dispatch({type: 'CREATE_WORKOUT', payload: json})
+            
+            // setError('You must be logged in')
         } else {
-            setError(json.error)
-            setEmptyFields(json.emptyFields)
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/workouts`, {
+                method: 'POST',
+                body: JSON.stringify(workout),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.token}`
+                }
+            })
+            const json = await response.json()
+
+            if (response.ok) {
+                setTitle('')
+                setLoad('')
+                setReps('')
+                setError(null)
+                setEmptyFields([])
+                console.log('new workout added', json)
+                dispatch({type: 'CREATE_WORKOUT', payload: json})
+            } else {
+                setError(json.error)
+                setEmptyFields(json.emptyFields)
+            }
         }
     }
 

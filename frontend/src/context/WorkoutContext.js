@@ -1,4 +1,5 @@
-import { createContext, useReducer } from 'react'
+import { createContext, useEffect, useReducer } from 'react'
+import { useAuthContext } from '../hooks/useAuthContext'
 
 export const WorkoutsContext = createContext()
 
@@ -14,7 +15,7 @@ export const workoutsReducer = (state, action) => {
             }
         case 'DELETE_WORKOUT':
             return {
-                workouts: state.workouts.filter((w) => w._id !== action.payload._id)
+                workouts: state.workouts.filter((w) => w._id ? w._id !== action.payload._id : w.id !== action.payload.id)
             }
         default:
             return state
@@ -25,6 +26,22 @@ export const WorkoutsContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(workoutsReducer, {
         workouts: null
     })
+
+    const { user } = useAuthContext()
+
+    // Load workouts from sessionStorage if not logged in
+    useEffect(() => {
+        const storedWorkouts = JSON.parse(sessionStorage.getItem('workouts')) || [];
+        if (!user) {
+            dispatch({ type: 'SET_WORKOUTS', payload: storedWorkouts })
+        }
+    }, [user])
+
+    useEffect(() => {
+        if (!user) {
+            sessionStorage.setItem('guestWorkouts', JSON.stringify(state.workouts))
+        }
+    }, [state.workouts, user])
 
     return (
         <WorkoutsContext.Provider value={{...state, dispatch}}>
